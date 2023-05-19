@@ -1,2 +1,4 @@
 # bimm143
-Bionformatics lab class
+Bioinformatics lab class.
+
+Add changes from local computer.
