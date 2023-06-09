@@ -1,0 +1,153 @@
+---
+title: "Class 17: Mini-project"
+author: Marcos Díaz-Gay
+date: 2023-05-31
+format: gfm
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Getting data
+
+```{r}
+vax <- read.csv("https://marcos-diazg.github.io/BIMM143_SP23/class-material/class17/covid19vaccinesbyzipcode_test.csv")
+```
+
+Q1
+
+```{r}
+colnames(vax)
+```
+
+Q9
+
+```{r}
+library(lubridate)
+today() - ymd(vax$as_of_date[nrow(vax)])
+```
+
+Q10
+
+```{r}
+length(unique(vax$as_of_date))
+
+library(dplyr)
+```
+
+# Focus on San Diego
+
+```{r}
+sd <- vax[ vax$county == 'San Diego' , ]
+```
+
+Q11
+
+```{r}
+length(unique( sd$zip_code_tabulation_area ))
+```
+
+Q12
+
+```{r}
+# Tidyverse
+library(dplyr)
+the_largest_zip_code = filter(sd, age5_plus_population == max(sd$age5_plus_population))
+the_largest_zip_code$zip_code_tabulation_area
+
+
+# Base R
+the_largest_zip_code = sd[sd$age5_plus_population == max(sd$age5_plus_population),]
+unique(the_largest_zip_code$zip_code_tabulation_area)
+```
+
+Q13
+
+```{r}
+sd_may23 <- filter(sd, as_of_date == '2023-05-23')
+mean(sd_may23$percent_of_population_fully_vaccinated, na.rm = T)
+```
+
+```{r}
+sd_may23 <- filter(vax, county == 'San Diego' &
+                       as_of_date == '2023-05-23')
+hist(sd_may23$percent_of_population_fully_vaccinated,
+     xlab = 'Percentage of Population Fully Vaccinated',
+     main = 'Histogram of Vaccination Rates Across\nSan Diego County - May 23, 2023')
+```
+
+ggplot2 option
+
+```{r}
+library(ggplot2)
+ggplot(sd_may23) +
+    aes(percent_of_population_fully_vaccinated) +
+    geom_histogram(bins = 12) +
+    ggtitle('Histogram of Vaccination Rates Across\nSan Diego County - May 23, 2023') +
+    labs(title = 'Histogram of Vaccination Rates',
+         subtitle = 'Across San Diego County - May 23, 2023',
+         x = 'Percentage of Population Fully Vaccinated')
+```
+
+Q15
+
+Filter UCSD zip code
+
+```{r}
+ucsd <- filter(sd, zip_code_tabulation_area=="92037")
+unique(ucsd$age5_plus_population)
+
+```
+
+```{r}
+str(ucsd$as_of_date)
+p <- ggplot(ucsd) +
+  aes(x = ymd(as_of_date),
+      y = percent_of_population_fully_vaccinated) +
+  geom_point() +
+  geom_line(group=1) +
+  ylim(c(0,1)) +
+  labs(x = 'Date', y="Percent Vaccinated")
+```
+
+Q16
+
+```{r}
+vax.36 <- filter(vax, age5_plus_population > 36144 &
+                as_of_date == "2023-05-23")
+mean.vax.36 <- mean(vax.36$percent_of_population_fully_vaccinated)
+```
+
+```{r}
+p + geom_hline(yintercept = mean.vax.36,
+               col = 'red',
+               linetype = 'dashed')
+```
+
+Q17
+
+```{r}
+summary(vax.36$percent_of_population_fully_vaccinated)
+```
+
+Q18
+
+```{r}
+ggplot(vax.36) +
+    aes(percent_of_population_fully_vaccinated) +
+    geom_histogram() +
+    xlim(c(0,1))
+```
+
+Q20
+
+```{r}
+vax.36.all <- filter(vax, age5_plus_population > 36144)
+
+ggplot(vax.36.all) +
+  aes(x = ymd(as_of_date),
+      y = percent_of_population_fully_vaccinated,
+      group = zip_code_tabulation_area) +
+  geom_line(alpha=0.2, color='green') +
+  ylim(c(0,1)) +
+  geom_hline(yintercept = mean.vax.36, linetype='dashed')
+```

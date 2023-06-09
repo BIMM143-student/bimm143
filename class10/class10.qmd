@@ -1,0 +1,89 @@
+---
+title: "Class 10: Halloween Candy"
+author: "Marcos"
+format: gfm
+editor_options: 
+  chunk_output_type: inline
+---
+
+# 1. Importing candy data
+
+```{r}
+candy = read.csv('candy-data.csv',
+                 row.names = 1)
+```
+
+Number of different candy types
+
+```{r}
+candy_types = nrow(candy)
+candy_types
+```
+
+Number of fruity candy types
+
+```{r}
+fruity_candy_types = sum(candy$fruity)
+fruity_candy_types
+```
+
+# 2. Favorite candy
+
+```{r}
+candy['Kit Kat', 'winpercent']
+```
+
+```{r}
+# install.packages('skimr')
+library(skimr)
+skim(candy)
+```
+
+Histogram for `winpercent`
+
+```{r}
+hist(candy$winpercent)
+```
+
+We want to compare chocolate and fruity candy
+
+```{r}
+# chocolate_candy = candy$winpercent[ as.logical(candy$chocolate) ]
+
+table(as.logical(candy$chocolate))
+```
+
+```{r}
+length(candy$winpercent)
+```
+
+```{r}
+winpercent_chocolate <- candy$winpercent[ as.logical(candy$chocolate) ]
+```
+
+```{r}
+mean(winpercent_chocolate)
+```
+
+For the fruity candies
+
+```{r}
+winpercent_fruity <- candy$winpercent[ as.logical(candy$fruity) ]
+mean(winpercent_fruity)
+```
+
+Statistical test
+
+```{r}
+t.test(winpercent_chocolate, winpercent_fruity)
+```
+
+```{r}
+boxplot(winpercent_chocolate, winpercent_fruity)
+```
+
+# 3. Overall Candy Rankings
+
+```{r}
+rownames(candy)[order(candy$winpercent)][1:5]
+```

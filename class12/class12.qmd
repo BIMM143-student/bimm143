@@ -1,0 +1,132 @@
+---
+title: "Class 12: Differential Expression Analysis"
+author: "Marcos"
+format: gfm
+editor_options: 
+  chunk_output_type: inline
+---
+
+# 2. Import countData and colData
+
+```{r}
+counts <- read.csv('airway_scaledcounts.csv', row.names = 1)
+metadata <- read.csv('airway_metadata.csv')
+```
+
+> **Q1.** How many genes are in this dataset?
+
+In this dataset there are `r nrow(counts)` genes.
+
+> **Q2.**.How many control cell lines do we have?
+
+```{r, include=FALSE}
+control_cell_lines <- table(metadata$dex)['control']
+```
+
+We have `r control_cell_lines` control cell lines.
+
+# 3. Toy differential gene expression
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+control.counts <- counts[ ,control$id]
+control.mean <- rowSums( control.counts )/4 
+head(control.mean)
+```
+
+```{r}
+metadata[,"dex"] == "control"
+```
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+
+control$id
+```
+
+```{r}
+control.counts <- counts[,control$id]
+control.mean <- rowMeans(control.counts)
+```
+
+```{r}
+treated <- metadata[metadata[,"dex"]=="treated",]
+treated.mean <- rowMeans(counts[,treated$id])
+```
+
+```{r}
+meancounts <- data.frame(control.mean,
+                         treated.mean)
+colSums(meancounts)
+```
+
+```{r}
+plot(meancounts, log='xy')
+```
+
+```{r}
+log2(40/20)
+```
+
+To calculate the log2 of the fold change between treated and control...
+
+```{r}
+meancounts$log2fc <- log2(meancounts$treated.mean/
+                          meancounts$control.mean)
+```
+
+To remove zero values
+
+```{r}
+zero.vals <- which(meancounts[,1:2] == 0, arr.ind = TRUE)
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+```
+
+Overexpressed and underexpressed genes
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+table(up.ind)
+```
+
+# 4. DESeq2 analysis
+
+First step, loading the library
+
+```{r}
+library(DESeq2)
+```
+
+```{r}
+citation('DESeq2')
+```
+
+Let's generate the specific object that DESeq2 needs:
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = counts,
+                              colData = metadata,
+                              design = ~dex )
+
+
+```
+
+```{r}
+dds <- DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+```
+
+```{r}
+summary(res, alpha = 0.05)
+```
+
+# 6. Data visualization
+
+```{r}
+plot(res$log2FoldChange, -log10(res$padj))
+```

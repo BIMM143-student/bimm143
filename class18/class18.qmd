@@ -1,0 +1,68 @@
+---
+title: "Class 18: Mini-project"
+author: Marcos Díaz-Gay
+date: 2023-06-02
+format: gfm
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+library(maftools)
+coad = read.maf('data_mutations.txt')
+
+```
+
+Load the matrix
+
+```{r}
+mm_coad = read.delim('lung.txt')
+```
+
+Plot the SBS96 profile
+
+```{r}
+library(MutationalPatterns)
+set.seed(11111) # fixing the seed for random number generation
+
+samples_to_plot = sample(1:ncol(mm_coad),
+                         size = 4) # selecting 4 random samples
+plot_96_profile(mm_coad[,samples_to_plot],
+                condensed = T)
+```
+
+Plots the samples with more mutations
+
+```{r}
+mutations_in_samples <- colSums(mm_coad)
+top_4_mutated_cases <- order(mutations_in_samples, decreasing = T)[1:4]
+plot_96_profile(mm_coad[,top_4_mutated_cases],
+                condensed = T)
+```
+
+Signature Assignment
+
+```{r}
+library(MutationalPatterns)
+cosmic_signatures = get_known_signatures(source = 'COSMIC_v3.2')
+
+fit_res = fit_to_signatures(mm_coad, cosmic_signatures)
+contributions = fit_res$contribution
+```
+
+Top 4 contributing signatures
+
+```{r}
+top_signatures = sort(rowMeans(contributions), decreasing = T)
+top_signatures
+```
+
+To get relative values for mutations in signatures
+
+```{r}
+relative_contributions = apply(contributions, 2,
+                               prop.table)
+top_relative = sort(rowMeans(relative_contributions),
+                    decreasing = T)
+top_relative
+```

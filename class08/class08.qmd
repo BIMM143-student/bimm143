@@ -1,0 +1,29 @@
+---
+title: "Mini Project: PCA"
+author: "Marcos"
+format: gfm
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+wisc.df <- read.csv('WisconsinCancer.csv')
+```
+
+Q1
+
+```{r}
+nrow(wisc.df)
+```
+
+```{r}
+table(wisc.df$diagnosis)
+diagnosis <- wisc.df$diagnosis
+wisc.data <- wisc.df[,-1]
+```
+
+Q3
+
+```{r}
+grep("_mean", colnames(wisc.df))
+```

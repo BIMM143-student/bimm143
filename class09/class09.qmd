@@ -1,0 +1,104 @@
+---
+title: "Class 9"
+author: "Marcos"
+format: gfm
+editor_options: 
+  chunk_output_type: inline
+---
+
+To read the file we are going to use the command `read.csv`.
+
+```{r}
+pdb_stats <- read.csv('Data Export Summary.csv',
+                      row.names = 1)
+```
+
+I need to sum all the elements of the X.ray column.
+
+```{r}
+pdb_stats$X.ray
+```
+
+We are gonna use `gsub` to remove the commas
+
+```{r}
+as.numeric( gsub(',', '', pdb_stats$X.ray) )
+```
+
+I use the `sum` command to get the sum
+
+```{r}
+n_xray <- sum( as.numeric( gsub(',', '', pdb_stats$X.ray) ) )
+n_em <- sum( as.numeric( gsub(',', '', pdb_stats$EM) ) )
+n_total <- sum( as.numeric( gsub(',', '', pdb_stats$Total) ) )
+```
+
+**Q1:** What percentage of structures in the PDB are solved by X-Ray and Electron Microscopy.
+
+```{r}
+p_xray <- (n_xray) / n_total
+p_em <- (n_em) / n_total
+p_xray
+p_em
+p_total <- p_xray + p_em
+p_total
+
+```
+
+-   **Q2:** What proportion of structures in the PDB are protein?\\
+
+```{r}
+total_protein <- as.numeric( gsub(',', '', pdb_stats[1, 7]) )
+```
+
+Proportion
+
+```{r}
+total_protein / n_total
+```
+
+# 2. Visualizing the HIV-1 protease structure
+
+![](1HSG.png)
+
+# 3. Introduction to Bio3D in R
+
+```{r}
+library(bio3d)
+
+pdb <- read.pdb("1hsg")
+```
+
+```{r}
+pdb
+```
+
+```{r}
+attributes(pdb)
+```
+
+```{r}
+head(pdb$atom)
+```
+
+## Predicting functional motions of a single structure by NMA
+
+```{r}
+adk <- read.pdb('6s36')
+```
+
+```{r}
+adk
+```
+
+```{r}
+m <- nma(adk)
+```
+
+```{r}
+plot(m)
+```
+
+```{r}
+mktrj(m, file = "adk_m7.pdb")
+```
